@@ -1,0 +1,33 @@
+name: Auto Commit
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository manually
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          git clone https://${GH_PAT}@github.com/Gnarkilll/vimeocdn_parser.git repo
+          cd repo
+          git config --global user.name "Gnarkilll"
+          git config --global user.email "vpcorwin@gmail.com"
+
+      - name: Make changes
+        run: |
+          cd repo
+          echo "Auto-commit: $(date)" >> activity_log.txt
+          git add activity_log.txt
+          git commit -m "Auto-commit $(date)" || exit 0
+
+      - name: Push changes
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          cd repo
+          git push origin main
